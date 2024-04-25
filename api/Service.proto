@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package monitoringService;
+
+option go_package="../internal/pb"; 
+
+// Необходимо каждые **N** секунд выдавать информацию, усредненную за последние **M** секунд.
+message SnapshotRequest {
+    uint32 SnapshotPeriod = 1;
+    uint32 WarmingUpTime = 2;
+}
+
+service monitoringService {
+    rpc StreamSnapshots(SnapshotRequest) returns (stream Snapshot) {};
+}
+
+message Snapshot {
+    LoadAverage loadAverage = 1;
+}
+
+message LoadAverage {
+    float min = 1; // load avg over the last 1 minute
+    float five = 2; // load avg over the last 5 minutes
+    float fifteen = 3; // load avg over the last 15 minutes
+}
