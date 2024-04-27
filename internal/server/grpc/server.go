@@ -2,6 +2,7 @@ package internalgrpc
 
 import (
 	"net"
+	"time"
 
 	"github.com/adrianoff/go-system-monitoring/internal/app"
 	"github.com/adrianoff/go-system-monitoring/internal/logger"
@@ -47,4 +48,26 @@ func (s *Server) Stop() {
 	s.logger.Info("server grpc is stopping...")
 	s.server.Stop()
 	s.listener.Close()
+}
+
+func (s *Server) StreamSnapshots(request *pb.SnapshotRequest, server pb.MonitoringService_StreamSnapshotsServer) error {
+
+	time.Sleep(2 * time.Second)
+	snapshot := pb.Snapshot{
+		LoadAverage: &pb.LoadAverage{
+			Min:     10,
+			Five:    20,
+			Fifteen: 30,
+		},
+	}
+
+	server.Send(&snapshot)
+
+	time.Sleep(2 * time.Second)
+	server.Send(&snapshot)
+
+	time.Sleep(2 * time.Second)
+	server.Send(&snapshot)
+
+	return nil
 }
