@@ -2,7 +2,6 @@ package internalgrpc
 
 import (
 	"net"
-	"time"
 
 	"github.com/adrianoff/go-system-monitoring/internal/app"
 	"github.com/adrianoff/go-system-monitoring/internal/logger"
@@ -52,22 +51,26 @@ func (s *Server) Stop() {
 
 func (s *Server) StreamSnapshots(request *pb.SnapshotRequest, server pb.MonitoringService_StreamSnapshotsServer) error {
 
-	time.Sleep(2 * time.Second)
-	snapshot := pb.Snapshot{
-		LoadAverage: &pb.LoadAverage{
-			Min:     10,
-			Five:    20,
-			Fifteen: 30,
-		},
+	ch := s.app.GetMainChannel()
+
+	for {
+		select {
+		case <-server.Context().Done():
+			s.logger.Info("Disconnected")
+			return nil
+
+		case _, opened := <-ch:
+			if !opened {
+				return nil
+			}
+			snapshot := pb.Snapshot{
+				LoadAverage: &pb.LoadAverage{
+					Min:     10,
+					Five:    20,
+					Fifteen: 30,
+				},
+			}
+			server.Send(&snapshot)
+		}
 	}
-
-	server.Send(&snapshot)
-
-	time.Sleep(2 * time.Second)
-	server.Send(&snapshot)
-
-	time.Sleep(2 * time.Second)
-	server.Send(&snapshot)
-
-	return nil
 }
