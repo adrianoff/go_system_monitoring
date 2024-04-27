@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package monitoringService;
 
-option go_package="../internal/pb"; 
+option go_package="./;pb"; 
 
 // Необходимо каждые **N** секунд выдавать информацию, усредненную за последние **M** секунд.
 message SnapshotRequest {

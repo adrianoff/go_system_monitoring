@@ -1,2 +1,5 @@
+logger:
+  level: "INFO"
+
 grpcServer:
   address: "0.0.0.0:50051"
