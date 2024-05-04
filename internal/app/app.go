@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/adrianoff/go-system-monitoring/internal/logger"
@@ -36,11 +37,18 @@ func (app *App) startMainLoop(ch chan float32) {
 	N = 5
 
 	averageChan := make(chan float32)
+	diskChan := make(chan float32)
+
 	go app.collectLoadAverage(int(M), int(N), averageChan)
+	go app.collectDiskInfo(int(M), int(N), diskChan)
 
 	for {
 		app.logger.Info("Main Loop Read averageChan")
+
 		averageVal := <-averageChan
+		fmt.Println(averageVal)
+		averageVal = averageVal + <-diskChan
+		fmt.Println(averageVal)
 
 		app.logger.Info("Main Loop Main Chan Released")
 		ch <- averageVal
@@ -51,7 +59,7 @@ func (app *App) collectLoadAverage(warmUpSeconds, seconds int, ch chan float32) 
 	data := make([]int, warmUpSeconds)
 	for i := 0; i < warmUpSeconds; i++ {
 		time.Sleep(1 * time.Second)
-		data = append(data, 5)
+		data[i] = 5
 	}
 	ch <- calculateAverage(data)
 
@@ -63,6 +71,28 @@ func (app *App) collectLoadAverage(warmUpSeconds, seconds int, ch chan float32) 
 			time.Sleep(1 * time.Second)
 		}
 		app.logger.Info("collectLoadAverage Chan Released")
+		fmt.Println(data)
+		ch <- calculateAverage(data)
+	}
+}
+
+func (app *App) collectDiskInfo(warmUpSeconds, seconds int, ch chan float32) {
+	data := make([]int, warmUpSeconds)
+	for i := 0; i < warmUpSeconds; i++ {
+		time.Sleep(1 * time.Second)
+		data[i] = 10
+	}
+	ch <- calculateAverage(data)
+
+	for {
+		app.logger.Info("collectLoadAverage Starts")
+		data = data[seconds:]
+		for i := 0; i < seconds; i++ {
+			data = append(data, 15)
+			time.Sleep(1 * time.Second)
+		}
+		app.logger.Info("collectLoadAverage Chan Released")
+		fmt.Println(data)
 		ch <- calculateAverage(data)
 	}
 }
