@@ -59,15 +59,15 @@ func (s *Server) StreamSnapshots(request *pb.SnapshotRequest, server pb.Monitori
 			s.logger.Info("Disconnected")
 			return nil
 
-		case _, opened := <-ch:
+		case val, opened := <-ch:
 			if !opened {
 				return nil
 			}
 			snapshot := pb.Snapshot{
 				LoadAverage: &pb.LoadAverage{
-					Min:     10,
-					Five:    20,
-					Fifteen: 30,
+					Min:     val,
+					Five:    val,
+					Fifteen: val,
 				},
 			}
 			server.Send(&snapshot)
