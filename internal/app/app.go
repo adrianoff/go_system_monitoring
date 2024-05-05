@@ -1,7 +1,10 @@
 package app
 
 import (
+	"bytes"
 	"fmt"
+	"os/exec"
+	"strings"
 	"time"
 
 	"github.com/adrianoff/go-system-monitoring/internal/logger"
@@ -56,6 +59,16 @@ func (app *App) startMainLoop(ch chan float32) {
 }
 
 func (app *App) collectLoadAverage(warmUpSeconds, seconds int, ch chan float32) {
+	cmd := exec.Command("/usr/bin/top", "n1")
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	cmd.Run()
+	str := out.String()
+	fmt.Println(str)
+	rows := strings.SplitN(str, "\n", 4)
+
+	fmt.Println(rows)
+
 	data := make([]int, warmUpSeconds)
 	for i := 0; i < warmUpSeconds; i++ {
 		time.Sleep(1 * time.Second)
