@@ -15,11 +15,28 @@ service monitoringService {
 }
 
 message Snapshot {
+    Top top = 1;
+    DiskSpace diskSpace = 2;
+}
+
+message Top {
     LoadAverage loadAverage = 1;
+    Cpu cpu = 2;
+}
+
+message Cpu {
+    float us = 1;
+    float sy = 2;
+    float id = 3;
 }
 
 message LoadAverage {
     float min = 1; // load avg over the last 1 minute
     float five = 2; // load avg over the last 5 minutes
     float fifteen = 3; // load avg over the last 15 minutes
+}
+
+message DiskSpace {
+    int64 mbUsed = 1;
+    int32 percentUsed = 2;
 }
